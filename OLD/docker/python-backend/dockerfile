@@ -1,0 +1,17 @@
+# Base stage for shared environment setup
+FROM python:3.8 as base
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Development stage
+FROM base as development
+COPY . .
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+# Production stage
+FROM base as production
+COPY . .
+# Assuming gunicorn for production WSGI server
+RUN pip install gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "your_project.wsgi:application"]
